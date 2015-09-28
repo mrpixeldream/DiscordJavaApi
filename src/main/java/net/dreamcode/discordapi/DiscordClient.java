@@ -3,10 +3,13 @@ package net.dreamcode.discordapi;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.net.Socket;
+import java.net.URISyntaxException;
+import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DiscordClient {
+public abstract class  DiscordClient {
 
     public static final String AUTH_ENDPOINT = "https://discordapp.com/api/auth/login";
     public static final String BASE_ENDPOINT = "https://discordapp.com/api";
@@ -20,6 +23,7 @@ public class DiscordClient {
     private String userId;
 
     private DiscordGuild currentServer;
+    private SocketConnector socket;
 
     public DiscordClient(String email, String password) {
         this.email = email;
@@ -58,8 +62,25 @@ public class DiscordClient {
             this.userId = json.getString("id");
 
             this.isLoggedIn = true;
+            connectSocket();
         }
     }
+
+
+    private void connectSocket() {
+        try {
+            socket = new SocketConnector(this, "ws://gateway-arthas.discord.gg", this.authToken);
+            socket.connect();
+        }
+        catch (URISyntaxException e){
+            e.printStackTrace();
+        }
+    }
+
+    public void stop(){
+        socket.close();
+    }
+
 
     public void acceptInvite(String inviteCode) throws IOException {
         Map<String, String> params = new HashMap<>();
@@ -106,6 +127,14 @@ public class DiscordClient {
         }
     }
 
+    public void deleteMessage(String channel_id, String messages_id) throws IOException{
+        Map<String, String> headers = new HashMap<>();
+        headers.put("authorization", this.authToken);
+
+        HttpClient.delete(DiscordClient.BASE_ENDPOINT + "/channels/" + channel_id + "/messages/" + messages_id, headers);
+
+    }
+
     public boolean isLoggedIn() {
         return this.isLoggedIn;
     }
@@ -113,4 +142,9 @@ public class DiscordClient {
     public DiscordChannel[] getChannels() throws IOException {
         return this.currentServer.getChannels();
     }
+
+    public abstract void  on_Message(DiscordMessage message);
+
+
+
 }

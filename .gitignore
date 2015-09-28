@@ -63,3 +63,4 @@ crashlytics-build.properties
 hs_err_pid*
 
 /src/main/java/net/dreamcode/discordapi/testing
+/src/main/java/net/dreamcode/spielewiese
