@@ -74,6 +74,26 @@ public class DiscordClient {
         this.currentServer = new DiscordGuild(guildObj.getString("id"), guildObj.getString("name"), this.authToken);
     }
 
+    public DiscordChannel findById(String id) throws IOException {
+        for (DiscordChannel current : this.getChannels()) {
+            if (current.getId().equalsIgnoreCase(id)) {
+                return current;
+            }
+        }
+
+        return null;
+    }
+
+    public DiscordChannel findByName(String name) throws IOException {
+        for (DiscordChannel current : this.getChannels()) {
+            if (current.getName().equalsIgnoreCase(name)) {
+                return current;
+            }
+        }
+
+        return null;
+    }
+
     public void sendMessage(DiscordChannel channel, String message, boolean tts) {
         if (channel.getType().equalsIgnoreCase("text")) {
             channel.sendMessage(this.authToken, message, tts);
