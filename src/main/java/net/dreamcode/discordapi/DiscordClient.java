@@ -48,6 +48,15 @@ public class DiscordClient {
         else {
             this.authToken = json.getString("token");
             System.out.println("Logged in. Token: " + this.authToken);
+
+            Map<String, String> headers = new HashMap<>();
+
+            headers.put("authorization", this.authToken);
+            response = HttpClient.get(DiscordClient.BASE_ENDPOINT + "/users/@me", headers);
+            json = new JSONObject(response);
+
+            this.userId = json.getString("id");
+
             this.isLoggedIn = true;
         }
     }
@@ -63,6 +72,18 @@ public class DiscordClient {
         JSONObject guildObj = json.getJSONObject("guild");
 
         this.currentServer = new DiscordGuild(guildObj.getString("id"), guildObj.getString("name"), this.authToken);
+    }
+
+    public void sendMessage(DiscordChannel channel, String message, boolean tts) {
+        if (channel.getType().equalsIgnoreCase("text")) {
+            channel.sendMessage(this.authToken, message, tts);
+        }
+    }
+
+    public void clearChannel(DiscordChannel channel) {
+        if (channel.getType().equalsIgnoreCase("text")) {
+            channel.clearChat(this.authToken);
+        }
     }
 
     public boolean isLoggedIn() {
