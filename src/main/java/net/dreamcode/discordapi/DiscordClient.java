@@ -3,9 +3,7 @@ package net.dreamcode.discordapi;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.net.Socket;
 import java.net.URISyntaxException;
-import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -95,7 +93,7 @@ public abstract class  DiscordClient {
         this.currentServer = new DiscordGuild(guildObj.getString("id"), guildObj.getString("name"), this.authToken);
     }
 
-    public DiscordChannel findById(String id) throws IOException {
+    public DiscordChannel findChannelById(String id) throws IOException {
         for (DiscordChannel current : this.getChannels()) {
             if (current.getId().equalsIgnoreCase(id)) {
                 return current;
@@ -105,7 +103,7 @@ public abstract class  DiscordClient {
         return null;
     }
 
-    public DiscordChannel findByName(String name) throws IOException {
+    public DiscordChannel findChannelByName(String name) throws IOException {
         for (DiscordChannel current : this.getChannels()) {
             if (current.getName().equalsIgnoreCase(name)) {
                 return current;

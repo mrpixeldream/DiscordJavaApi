@@ -56,12 +56,15 @@ public class DiscordChannel {
         Map<String, String> headers = new HashMap<>();
         headers.put("authorization", token);
         try {
-            String response = HttpClient.get(DiscordClient.BASE_ENDPOINT + "/channels/" + this.id + "/messages", headers);
+            String response = HttpClient.get(DiscordClient.BASE_ENDPOINT + "/channels/" + this.id + "/messages?limit=5000", headers);
             JSONArray json = new JSONArray(response);
+            System.out.println(json.length());
 
             for (int i = 0; i < json.length(); i++) {
                 JSONObject obj = json.getJSONObject(i);
-                HttpClient.delete(DiscordClient.BASE_ENDPOINT + "/channels/" + this.id + "/messages/" + obj.getString("id"), headers);
+
+                Thread deleteThread = new DeleteThread(this.id, obj, headers);
+                deleteThread.start();
             }
         }
         catch (IOException e) {
