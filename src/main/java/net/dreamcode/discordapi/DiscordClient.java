@@ -2,15 +2,26 @@ package net.dreamcode.discordapi;
 
 import org.json.JSONObject;
 
+import javax.print.URIException;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.security.MessageDigest;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public abstract class  DiscordClient {
 
+/**
+ * A API for Discord to create your own Bot
+ */
+
+
+public abstract class DiscordClient {
+
     public static final String AUTH_ENDPOINT = "https://discordapp.com/api/auth/login";
     public static final String BASE_ENDPOINT = "https://discordapp.com/api";
+    public static final String BASE_ENDPOINT_U = "http://discordapp.com/api";
 
     private String email;
     private String password;
@@ -23,19 +34,40 @@ public abstract class  DiscordClient {
     private DiscordGuild currentServer;
     private SocketConnector socket;
 
-    public DiscordClient(String email, String password) {
+    private ArrayList<DiscordClient> discordClients = new ArrayList<>();
+
+
+    /**
+     * The constructor tries to connect to Discord.
+     * After the bot successfully connect to Discord,
+     * he can receive messages.
+     *
+     * @param email The email from the bot account
+     * @param password The password from the bot account
+     *
+     * @throws IOException
+     * @throws URISyntaxException if the socket URI can't be converted
+     */
+
+    public DiscordClient(String email, String password) throws IOException,URISyntaxException {
+
         this.email = email;
         this.password = password;
 
-        try {
             this.tryConnection();
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
+
     }
 
-    private void tryConnection() throws IOException {
+    /**
+     *
+     * @return the user ID as String
+     */
+
+    public String getUserId() {
+        return userId;
+    }
+
+    private void tryConnection() throws IOException, URISyntaxException {
         Map<String, String> params = new HashMap<>();
         params.put("email", this.email);
         params.put("password", this.password);
@@ -65,17 +97,26 @@ public abstract class  DiscordClient {
     }
 
 
-    private void connectSocket() {
-        try {
-            socket = new SocketConnector(this, "ws://gateway-arthas.discord.gg", this.authToken);
-            socket.connect();
-        }
-        catch (URISyntaxException e){
-            e.printStackTrace();
-        }
+    /**
+     *
+     * @throws URISyntaxException
+     * @throws IOException
+     */
+
+    private void connectSocket() throws URISyntaxException,IOException {
+
+        Map<String, String> headers = new HashMap<>();
+
+        headers.put("authorization", this.authToken);
+
+        String response = HttpClient.get(DiscordClient.BASE_ENDPOINT_U + "/gateway", headers);
+        JSONObject json = new JSONObject(response);
+
+        socket = new SocketConnector(this, json.getString("url"), this.authToken);
+        socket.connect();
     }
 
-    public void stop(){
+    public void stop() {
         socket.close();
     }
 
@@ -125,13 +166,15 @@ public abstract class  DiscordClient {
         }
     }
 
-    public void deleteMessage(String channel_id, String messages_id) throws IOException{
+    public void deleteMessage(String channel_id, String messages_id) throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put("authorization", this.authToken);
 
         HttpClient.delete(DiscordClient.BASE_ENDPOINT + "/channels/" + channel_id + "/messages/" + messages_id, headers);
 
     }
+
+
 
     public boolean isLoggedIn() {
         return this.isLoggedIn;
@@ -141,8 +184,7 @@ public abstract class  DiscordClient {
         return this.currentServer.getChannels();
     }
 
-    public abstract void  on_Message(DiscordMessage message);
-
+    public abstract void on_Message(DiscordMessage message);
 
 
 }
