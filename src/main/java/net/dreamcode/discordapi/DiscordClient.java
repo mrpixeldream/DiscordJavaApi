@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class  DiscordClient {
+
 
 /**
  * A API for Discord to create your own Bot
@@ -98,6 +98,7 @@ public abstract class DiscordClient {
 
 
     /**
+     * starts the chat socket
      *
      * @throws URISyntaxException
      * @throws IOException
