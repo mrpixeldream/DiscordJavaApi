@@ -34,7 +34,7 @@ public abstract class DiscordClient {
     private DiscordGuild currentServer;
     private SocketConnector socket;
 
-    private ArrayList<DiscordClient> discordClients = new ArrayList<>();
+    private ArrayList<DiscordClient> discordClients  = new ArrayList<>();
 
 
     /**
@@ -181,8 +181,17 @@ public abstract class DiscordClient {
         return this.isLoggedIn;
     }
 
-    public DiscordChannel[] getChannels() throws IOException {
+    public ArrayList<DiscordChannel> getChannels() throws IOException {
         return this.currentServer.getChannels();
+    }
+
+    public void addUser(DiscordClient client){
+
+            for(DiscordClient temp : discordClients){
+                if(temp.getUserId().equalsIgnoreCase(client.getUserId()));
+            }
+
+
     }
 
     public abstract void on_Message(DiscordMessage message);

@@ -56,7 +56,9 @@ public class DiscordChannel {
         Map<String, String> headers = new HashMap<>();
         headers.put("authorization", token);
         try {
-            String response = HttpClient.get(DiscordClient.BASE_ENDPOINT + "/channels/" + this.id + "/messages?limit=5000", headers);
+            String response = HttpClient.get(DiscordClient.BASE_ENDPOINT + "/channels/" +
+                    this.id + "/messages?limit=5000", headers);
+
             JSONArray json = new JSONArray(response);
             System.out.println(json.length());
 

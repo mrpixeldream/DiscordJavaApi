@@ -4,6 +4,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,11 +14,14 @@ public class DiscordGuild {
     private String id;
     private String name;
 
-    private DiscordChannel[] channels;
+    private ArrayList<DiscordChannel> channels;
+    private ArrayList<DiscordUser> users;
 
     protected DiscordGuild(String id, String name, String auth) {
         this.id = id;
         this.name = name;
+        this.users = new ArrayList<>();
+        this.channels = new ArrayList<>();
 
         Map<String, String> headers = new HashMap<>();
         headers.put("authorization", auth);
@@ -25,12 +30,11 @@ public class DiscordGuild {
             String response = HttpClient.get(DiscordClient.BASE_ENDPOINT + "/guilds/" + this.id + "/channels", headers);
             JSONArray json = new JSONArray(response);
 
-            this.channels = new DiscordChannel[json.length()];
 
             for (int i = 0; i < json.length(); i++) {
                 JSONObject current = json.getJSONObject(i);
                 DiscordChannel channel = new DiscordChannel(current.getString("id"), current.getString("type"), current.getString("name"));
-                this.channels[i] = channel;
+                this.channels.add(channel);
             }
         }
         catch (IOException e) {
@@ -46,7 +50,8 @@ public class DiscordGuild {
         return name;
     }
 
-    public DiscordChannel[] getChannels() {
+    public ArrayList<DiscordChannel> getChannels() {
         return channels;
     }
+
 }

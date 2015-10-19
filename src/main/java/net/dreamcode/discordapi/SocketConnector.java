@@ -38,7 +38,8 @@ public class SocketConnector extends WebSocketClient implements Runnable {
     }
 
     public void login() {
-        send("{\"op\":2,\"d\":{\"token\":\"" + token +"\",\"properties\":{\"$os\":\"Linux\",\"$browser\":\"BotisCalling\",\"$device\":\"BotisCalling\",\"$referrer\":\"\",\"$referring_domain\":\"\"},\"v\":2}}");
+        send("{\"op\":2,\"d\":{\"token\":\"" + token + "\",\"properties\":{\"$os\":\"Linux\",\"$browser\":\"BotisCalling\"," +
+                "\"$device\":\"BotisCalling\",\"$referrer\":\"\",\"$referring_domain\":\"\"},\"v\":2}}");
     }
 
 
@@ -58,6 +59,10 @@ public class SocketConnector extends WebSocketClient implements Runnable {
             System.out.println("Can not connect to discord");
         }
         System.out.println("closed with exit code " + code + " additional info: " + reason);
+        online = false;
+        aLive.interrupt();
+
+
 
 
     }
@@ -77,6 +82,8 @@ public class SocketConnector extends WebSocketClient implements Runnable {
                 System.out.println("Connected and logged in to Discord");
                 online = true;
                 aLive.start();
+                onready(json);
+
                 break;
             case "MESSAGE_CREATE": message_create(json);
                 break;
@@ -103,12 +110,34 @@ public class SocketConnector extends WebSocketClient implements Runnable {
         super.close();
     }
 
+    private void onready(JSONObject json){
+
+        JSONObject info = json.getJSONObject("d");
+
+        JSONArray private_channels = info.getJSONArray("private_channels");
+        for(int i = 0; i < private_channels.length(); i++){
+
+            String username = private_channels.getJSONObject(i).getJSONObject("recipient").getString("username");
+            String id = private_channels.getJSONObject(i).getJSONObject("recipient").getString("id");
+            String last_message = private_channels.getJSONObject(i).getString("last_message_id");
+            String private_channel_id = private_channels.getJSONObject(i).getString("last_message_id");
+
+
+            whoIsCalling
+        }
+
+
+
+    }
+
     private void message_create(JSONObject json) {
-
+        // d is the conntent of the recieved message
         JSONObject message =json.getJSONObject("d");
-
+        // id of the message
         String id = message.getString("id");
+        // tts on?
         boolean tts = message.getBoolean("tts");
+        // mentioned all
         boolean mention_everyone = message.getBoolean("mention_everyone");
         String channel_id = message.getString("channel_id");
         String author_id  = message.getJSONObject("author").getString("id");
@@ -119,6 +148,8 @@ public class SocketConnector extends WebSocketClient implements Runnable {
         for (int i = 0; i< jArray.length(); i++) {
 
            mentions.add(jArray.getJSONObject(i).getString("id"));
+
+
 
 
         }
